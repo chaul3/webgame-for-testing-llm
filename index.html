@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mario-Style 2D Game - World 1</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(to bottom, #87CEEB, #98FB98);
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        canvas {
+            border: 2px solid #333;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        #gameCanvas {
+            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 60%, #90EE90 60%, #228B22 100%);
+        }
+        
+        #dragonCanvas {
+            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 60%, #90EE90 60%, #228B22 100%);
+        }
+        
+        .controls {
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .score {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .instructions {
+            margin-top: 10px;
+            color: #666;
+        }
+        
+        .game-tabs {
+            margin-bottom: 20px;
+        }
+        
+        .tab-button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            border: none;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        .tab-button:hover {
+            background: #45a049;
+        }
+        
+        .tab-button.active {
+            background: #2E7D32;
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .modal-content h3 {
+            color: #d32f2f;
+            margin-bottom: 20px;
+        }
+        
+        #puzzle-question {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-style: italic;
+            border-left: 4px solid #ff9800;
+        }
+        
+        #puzzle-answer {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .modal-buttons {
+            margin-top: 20px;
+        }
+        
+        .modal-buttons button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .modal-buttons button:first-child {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .modal-buttons button:last-child {
+            background: #ff9800;
+            color: white;
+        }
+        
+        #puzzle-feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .feedback-correct {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+        
+        .feedback-wrong {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+        
+        .answer-choices {
+            margin: 20px 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .choice-button {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: left;
+            transition: all 0.3s;
+        }
+        
+        .choice-button:hover {
+            background: #e3f2fd;
+            border-color: #2196F3;
+        }
+        
+        .choice-button.selected {
+            background: #2196F3;
+            color: white;
+            border-color: #1976D2;
+        }
+        
+        .choice-button.correct {
+            background: #4CAF50;
+            color: white;
+            border-color: #388E3C;
+        }
+        
+        .choice-button.wrong {
+            background: #f44336;
+            color: white;
+            border-color: #d32f2f;
+        }
+        
+        .stats {
+            margin-bottom: 10px;
+        }
+        
+        .stats-button {
+            padding: 5px 15px;
+            margin: 0 5px;
+            border: none;
+            background: #607D8B;
+            color: white;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+        
+        .stats-button:hover {
+            background: #455A64;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-tabs">
+        <button class="tab-button active" onclick="switchGame('mario')">Mario Game</button>
+        <button class="tab-button" onclick="switchGame('dragon')">Dragon Maze</button>
+    </div>
+    
+    <!-- Mario Game -->
+    <div id="mario-game" class="game-container">
+        <div class="score">
+            Score: <span id="score">0</span> | Lives: <span id="lives">3</span>
+        </div>
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+        <div class="controls">
+            <div class="instructions">
+                <strong>Controls:</strong> Arrow Keys to move, Spacebar to jump
+            </div>
+        </div>
+    </div>
+    
+    <!-- Dragon Maze Game -->
+    <div id="dragon-game" class="game-container" style="display: none;">
+        <div class="score">
+            Level: <span id="dragon-level">1</span> | Score: <span id="dragon-score">0</span> | Lives: <span id="dragon-lives">3</span>
+        </div>
+        <div class="stats">
+            <button class="stats-button" onclick="showRiddleStats()">📊 Riddle Stats</button>
+            <button class="stats-button" onclick="clearRiddleHistory()">🗑️ Clear History</button>
+        </div>
+        <canvas id="dragonCanvas" width="800" height="400"></canvas>
+        <div class="controls">
+            <div class="instructions">
+                <strong>Controls:</strong> Arrow Keys to move through maze, solve puzzles to advance
+            </div>
+        </div>
+        
+        <!-- Puzzle Modal -->
+        <div id="puzzle-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h3>Dragon's Riddle - Level <span id="puzzle-level">1</span></h3>
+                <div id="puzzle-question">Loading riddle...</div>
+                <div id="answer-choices" class="answer-choices">
+                    <button class="choice-button" onclick="selectAnswer(0)" id="choice-0">A) Loading...</button>
+                    <button class="choice-button" onclick="selectAnswer(1)" id="choice-1">B) Loading...</button>
+                    <button class="choice-button" onclick="selectAnswer(2)" id="choice-2">C) Loading...</button>
+                    <button class="choice-button" onclick="selectAnswer(3)" id="choice-3">D) Loading...</button>
+                </div>
+                <div class="modal-buttons">
+                    <button onclick="submitSelectedAnswer()">Submit Answer</button>
+                    <button onclick="skipPuzzle()">Skip (-50 points)</button>
+                </div>
+                <div id="puzzle-feedback"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="game.js"></script>
+    <script src="dragon-game.js"></script>
+    <script>
+        let currentGame = 'mario';
+        let marioGame = null;
+        let dragonGame = null;
+        
+        function switchGame(gameType) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Hide all games
+            document.getElementById('mario-game').style.display = 'none';
+            document.getElementById('dragon-game').style.display = 'none';
+            
+            // Show selected game
+            if (gameType === 'mario') {
+                document.getElementById('mario-game').style.display = 'block';
+                currentGame = 'mario';
+                if (!marioGame) {
+                    marioGame = new Game();
+                }
+            } else {
+                document.getElementById('dragon-game').style.display = 'block';
+                currentGame = 'dragon';
+                if (!dragonGame) {
+                    dragonGame = new DragonGame();
+                }
+            }
+        }
+        
+        // Initialize Mario game on load
+        window.addEventListener('load', () => {
+            marioGame = new Game();
+        });
+    </script>
+</body>
+</html>
