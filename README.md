@@ -3,7 +3,7 @@
 A collection of two HTML5 canvas-based games: a Mario-style platformer and a Dragon Maze puzzle game with riddle-solving mechanics.
 
 ## 🎮 Games Overview
-
+ 
 ### 1. Mario-Style Platformer Game
 A classic 2D side-scrolling platformer inspired by Super Mario Bros.
 
