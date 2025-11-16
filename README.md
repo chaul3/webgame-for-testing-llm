@@ -42,4 +42,3 @@ A maze navigation game with integrated riddle-solving mechanics.
   - Solve 3 riddles per level OR pay points to use magic doors
   - Maze complexity increases with each level
   - Persistent score and statistics
-
